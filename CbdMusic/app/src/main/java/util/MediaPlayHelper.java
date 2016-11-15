@@ -66,6 +66,19 @@ public class MediaPlayHelper implements  AudioManager.OnAudioFocusChangeListener
         }
     }
 
+    public long getCurrentTime(){
+        if (mediaPlayer!=null){
+           return mediaPlayer.getCurrentPosition();
+        }
+        return 0;
+    }
+
+    public boolean isPlaying(){
+        if (mediaPlayer!=null){
+            return mediaPlayer.isPlaying();
+        }
+        return false;
+    }
     public void setOnPreparedListener(MediaPlayer.OnPreparedListener onPreparedListener){
         mediaPlayer.setOnPreparedListener(onPreparedListener);
     }

@@ -8,16 +8,19 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import bean.LyricContent;
 import bean.TrcLyricBean;
 import bean.TycLyricLeanBean;
+import bean.TycLyricWordBean;
 
 public class LyricProgress {
   
     private List<LyricContent> lyricList;
     private LyricContent myLyricContent;  
-    private int trcLine=1;
+    private int currentTrcLine=1;//解析trc歌词的当前行
     public LyricProgress(){  
         myLyricContent = new LyricContent();  
         lyricList = new ArrayList<LyricContent>();
@@ -65,10 +68,10 @@ public class LyricProgress {
         return stringBuilder.toString();  
     }
 
-    public String readTrc(String path){                        //从文件中读出歌词并解析的函数
-        StringBuilder stringBuilder = new StringBuilder();
+    public TrcLyricBean readTrc(String path){                        //从文件中读出歌词并解析的函数
         File f = new File(path);
         TrcLyricBean trcLyricBean=new TrcLyricBean();
+        ArrayList<TycLyricLeanBean> trcLyricLeanList=new ArrayList<>();
         try{
             FileInputStream fis = new FileInputStream(f);
             InputStreamReader isr = new InputStreamReader(fis,"utf-8");
@@ -76,66 +79,145 @@ public class LyricProgress {
             String s= "";
 
             while((s = br.readLine()) != null){
-                s = s.replace("[","");
-                s = s.replace("]","@");//每一句话的分隔符
-                switch (trcLine){
+                //取值的正则
+                String patternRegular ="(?<=\\:)\\S*(?=\\])";
+                // 创建 Pattern对象
+                Pattern pattern = Pattern.compile(patternRegular);
+                Matcher matcher;
+                switch (currentTrcLine){
                     case 1:
-                        trcLyricBean.setTi(s);
+                        matcher = pattern.matcher(s);
+                        while (matcher.find()){
+                            trcLyricBean.setTi(matcher.group(0));
+                        }
+                        currentTrcLine++;
                         break;
                     case 2:
-                        trcLyricBean.setAr(s);
+                        matcher = pattern.matcher(s);
+                        while (matcher.find()){
+                            trcLyricBean.setAr(matcher.group(0));
+                        }
+                        currentTrcLine++;
                         break;
                     case 3:
-                        trcLyricBean.setAl(s);
+                        matcher = pattern.matcher(s);
+                        while (matcher.find()){
+                            trcLyricBean.setAl(matcher.group(0));
+                        }
+                        currentTrcLine++;
                         break;
                     case 4:
-                        trcLyricBean.setLy(s);
+                        matcher = pattern.matcher(s);
+                        while (matcher.find()){
+                            trcLyricBean.setLy(matcher.group(0));
+                        }
+                        currentTrcLine++;
                         break;
                     case 5:
-                        trcLyricBean.setMu(s);
+                        matcher = pattern.matcher(s);
+                        while (matcher.find()){
+                           trcLyricBean.setMu(matcher.group(0));
+                        }
+                        currentTrcLine++;
                         break;
                     case 6:
-                        trcLyricBean.setMa(s);
+                        matcher = pattern.matcher(s);
+                        while (matcher.find()){
+                            trcLyricBean.setMa(matcher.group(0));
+                        }
+                        currentTrcLine++;
                         break;
                     case 7:
-                        trcLyricBean.setPu(s);
+                        matcher = pattern.matcher(s);
+                        while (matcher.find()){
+                            trcLyricBean.setPu(matcher.group(0));
+                        }
+                        currentTrcLine++;
                         break;
                     case 8:
-                        trcLyricBean.setBy(s);
+                        matcher = pattern.matcher(s);
+                        while (matcher.find()){
+                            trcLyricBean.setBy(matcher.group(0));
+                        }
+                        currentTrcLine++;
                         break;
                     case 9:
-                        trcLyricBean.setTotal(s);
+                        matcher = pattern.matcher(s);
+                        while (matcher.find()){
+                            trcLyricBean.setTotal(matcher.group(0));
+                        }
+                        currentTrcLine++;
                         break;
                     case 10:
-                        trcLyricBean.setOffset(s);
+                        matcher = pattern.matcher(s);
+                        while (matcher.find()){
+                            trcLyricBean.setOffset(matcher.group(0));
+                        }
+                        currentTrcLine++;
                         break;
                     default:
                         TycLyricLeanBean tycLyricLeanBean=new TycLyricLeanBean();
-
-                        String spiltLrcData[] = s.split("@");
-
-                        if(spiltLrcData.length > 1){
-
-                            myLyricContent.setLyricString(spiltLrcData[1]);     //将每句话创建一个类的实例,歌词和对应时间赋值
-                            int lycTime = time2Str(spiltLrcData[0]);
-                            myLyricContent.setLyricTime(lycTime);
-                            lyricList.add(myLyricContent);
-                            trcLine++;
-                            myLyricContent = new LyricContent();
+                        ArrayList<TycLyricWordBean>arrayList=new ArrayList<>();
+                        // 按指定模式在字符串查找
+                        //取时间的正则
+                        String patternTime ="(?<=\\[)\\S*(?=\\])";
+                        //取每个字时间的正则
+                        String patternWordTime="(?<=<)\\d*(?=>)";
+                        //取每个字内容的正则
+                        String patternWord="(?<=>)\\S";
+                        // 创建 Pattern对象
+                        Pattern paternTime = Pattern.compile(patternTime);
+                        Pattern paternWordTime = Pattern.compile(patternWordTime);
+                        Pattern paternWord = Pattern.compile(patternWord);
+                        // 现在创建 matcher 对象
+                        Matcher matcherTime = paternTime.matcher(s);
+                        Matcher matcherWordTime = paternWordTime.matcher(s);
+                        Matcher matcherWord = paternWord.matcher(s);
+                        //把每句的开始时间放入tycLyricLeanBean中
+                        while(matcherTime.find())
+                        {
+                            tycLyricLeanBean.setLineTime(time2Str(matcherTime.group(0))+"");
                         }
+                        //保存每个字的需要的时间
+                        while(matcherWordTime.find())
+                        {
+                            TycLyricWordBean tycLyricWordBean=new TycLyricWordBean();
+                            tycLyricWordBean.setWordTime(matcherWordTime.group(0));
+                            arrayList.add(tycLyricWordBean);
+                        }
+                        //保存每个字
+                        int position=0;
+                        while(matcherWord.find())
+                        {
+                            arrayList.get(position).setWordString(matcherWord.group(0));
+                            position++;
+                        }
+                        //把整句话放入句的bean中
+                        StringBuilder stringBuilder=new StringBuilder();
+                        for(int i=0;i<arrayList.size();i++){
+                            stringBuilder.append(arrayList.get(i).getWordString());
+                        }
+                        tycLyricLeanBean.setLine(stringBuilder.toString());
+                        //把字的list放入句中
+                        tycLyricLeanBean.setWordArrayList(arrayList);
+                        //把当前句子放入list中
+                        trcLyricLeanList.add(tycLyricLeanBean);
+
                         break;
                 }
             }
+            //把句的list放入歌词体（trcLyricBean）中
+            trcLyricBean.setLeanArrayList(trcLyricLeanList);
         }
         catch(FileNotFoundException e){
             e.printStackTrace();
-            stringBuilder.append("一丁点儿歌词都没找到,下载后再来找我把.......");
+//            stringBuilder.append("一丁点儿歌词都没找到,下载后再来找我把.......");
         }
         catch(IOException e){
             e.printStackTrace();
-            stringBuilder.append("没有读取到歌词.....");
+//            stringBuilder.append("没有读取到歌词.....");
         }
-        return stringBuilder.toString();
+        return trcLyricBean;
     }
 
     public int time2Str(String timeStr){                 //将分:秒:毫秒转化为长整型的数  
@@ -148,7 +230,7 @@ public class LyricProgress {
         int sec = Integer.parseInt(timeData[1]);  
         int millSec = Integer.parseInt(timeData[2]);  
   
-        int currentTime = (min * 60 + sec) * 1000 + millSec * 10;  
+        int currentTime = (min * 60 + sec) * 1000 + millSec;
         return currentTime;  
     }  
   

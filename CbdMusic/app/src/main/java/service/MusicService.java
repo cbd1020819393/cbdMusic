@@ -46,7 +46,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 //      mediaPlayer.playMusicForLocalStorage();
 
         //播放网络音乐
-        String url = "http://m6.file.xiami.com/177/2177/11906/146620_86149_h.mp3?auth_key=faf512883685639fec19cb8fc82d5ef1-1478660400-0-null";
+        String url = "http://m6.file.xiami.com/298/1298/32403/384272_16850296_h.mp3?auth_key=521f8e45533e96733931ca22818d5b42-1479092400-0-null";
         try {
             mediaPlayHelper.playMusicForNetwork(url);
         } catch (IOException e) {
